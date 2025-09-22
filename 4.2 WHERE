@@ -1,0 +1,56 @@
+#1. Obtener el ID y descripcion de los Territorios que pertenecen a la region 1.
+SELECT TerritoryID, TerritoryDescription
+FROM Territories
+WHERE RegionID = 1;
+
+#2. Obtener el ID, nombre y telefono de los Proveedores que esten en Japon
+SELECT SupplierID AS ID,
+       CompanyName AS Nombre,
+       Phone AS Telefono
+FROM Suppliers
+WHERE Country = 'Japan';
+
+#3. Obtener los proveedores que pertenecen a alguna region
+SELECT * FROM dbo.Suppliers
+WHERE region_id IS NOT NULL;
+
+#4. Obtener las categorias con ID del 1 al 5
+SELECT CategoryID, CategoryName, Description
+FROM Categories
+WHERE CategoryID BETWEEN 1 AND 5;
+
+#5. Obtener los Clientes que no pertenecen a ninguna region
+SELECT * FROM dbo.Customers
+WHERE region_id IS NULL;
+
+#6. Borrar la foto y la Ruta de la foto de todos los empleados excepto de aquel que tiene ID=5
+UPDATE Employees
+SET Photo = NULL,
+    PhotoPath = NULL
+WHERE EmployeeID <> 5;
+
+
+#7. En la tabla empleados, Ascender a Presidente al Vicepresidente
+UPDATE Employees
+SET Title = 'President'
+WHERE Title = 'Vice President, Sales';
+
+#8. En la tabla empleados, Ascender a Vicepresidente al empleado con ID=4
+UPDATE Employees
+SET Title = 'Vice President, Sales'
+WHERE EmployeeID = 4;
+
+#9. Robert King ya no trabaja en la empresa. Eliminarlo de la tabla empleados. ¿Que error aparece? ¿Cómo se podria solucionar?
+DELETE FROM Employees
+WHERE FirstName = 'Robert' AND LastName = 'King';
+
+-- no se puede borrar a Robert King porque su EmployeeID está referenciado en la tabla Orders (y posiblemente en otras, como EmployeeTerritories)
+
+-- solucion
+ALTER TABLE Orders
+DROP CONSTRAINT FK_Orders_Employees;
+
+ALTER TABLE Orders
+ADD CONSTRAINT FK_Orders_Employees
+FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+ON DELETE CASCADE;
