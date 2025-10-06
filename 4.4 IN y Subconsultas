@@ -1,0 +1,84 @@
+-- 1
+SELECT * FROM dbo.Suppliers
+WHERE City IN('London', 'Osaka', 'Tokyo');
+
+-- 2
+SELECT * FROM dbo.Categories;
+
+SELECT * FROM dbo.Products
+WHERE CategoryID IN(
+                    SELECT CategoryID
+                    FROM dbo.Categories
+                    WHERE CategoryName IN('Condiment', 'Seafood
+                    )
+);
+
+-- 3
+SELECT OrderID AS 'Numero de Orden' FROM dbo.[Order Details]
+WHERE ProductID IN(SELECT ProductID
+			       FROM dbo.Products
+				WHERE CategoryID IN(SELECT CategoryID
+									FROM dbo.Categories
+									WHERE CategoryName = 'Meat/Poultry'
+									)
+);
+
+-- 4
+SELECT ShipAddress AS 'Direcciones de envio' FROM dbo.Orders
+WHERE OrderID IN(
+				SELECT OrderID
+				FROM dbo.[Order Details]
+				WHERE Discount IS NOT NULL
+				);
+
+-- 5
+SELECT SupplierID, CompanyName, City
+FROM Suppliers
+WHERE City IN (
+    SELECT City
+    FROM Customers
+    WHERE City IS NOT NULL
+);
+
+-- 6
+SELECT DISTINCT City
+FROM Customers
+WHERE City IN (
+    SELECT City
+    FROM Employees
+    WHERE City IS NOT NULL
+);
+
+-- 7
+SELECT SupplierID, CompanyName, Country
+FROM Suppliers
+WHERE Country IN (
+    SELECT ShipCountry
+    FROM Orders
+    WHERE ShipCountry IS NOT NULL
+);
+
+-- 8
+SELECT CustomerID, CompanyName, PostalCode
+FROM Customers
+WHERE PostalCode IN (
+    SELECT PostalCode
+    FROM Suppliers
+    WHERE PostalCode IS NOT NULL
+);
+
+-- 9
+SELECT ProductID, ProductName
+FROM Products
+WHERE ProductID NOT IN (
+    SELECT ProductID
+    FROM [Order Details]
+);
+
+-- 10
+SELECT CustomerID, CompanyName
+FROM Customers
+WHERE CustomerID NOT IN (
+    SELECT CustomerID
+    FROM Orders
+);
