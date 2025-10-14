@@ -1,0 +1,38 @@
+SELECT TOP 10 *
+FROM Customers
+ORDER BY CompanyName ASC;
+
+SELECT MAX(Freight) AS Freight_Mas_Caro
+FROM Orders;
+
+SELECT *
+FROM Orders
+WHERE Freight = (SELECT MAX(Freight) FROM Orders);
+
+SELECT TOP 5 *
+FROM Products
+ORDER BY UnitPrice DESC;
+
+SELECT *
+FROM Products
+WHERE UnitPrice = (SELECT MIN(UnitPrice) FROM Products);
+
+SELECT TOP 10 PERCENT *
+FROM Products
+ORDER BY UnitsInStock DESC;
+
+SELECT TOP 5 *
+FROM Products
+ORDER BY UnitPrice ASC;
+
+SELECT TOP 50 *
+FROM Orders
+ORDER BY Freight ASC;
+
+SELECT TOP 1 *
+FROM Products
+ORDER BY UnitPrice DESC;
+
+SELECT TOP 10 *
+FROM Products
+ORDER BY UnitsInStock ASC;
