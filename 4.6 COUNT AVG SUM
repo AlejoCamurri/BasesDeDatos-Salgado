@@ -1,0 +1,40 @@
+#1. Cantidad de Territorios que pertenecen a la region 2
+SELECT COUNT(*) AS CantidadTerritorios
+FROM Territories AS t
+WHERE t.RegionID = 2;
+
+#2. Cantidad de Empleados con el titulo de cortesia “Mr.”
+SELECT COUNT(*) AS CantidadEmpleadosMr
+FROM Employees AS e
+WHERE e.TitleOfCourtesy = 'Mr.';
+
+#3. El promedio de gasto de envío de las órdenes
+SELECT AVG(o.Freight) AS PromedioGastoEnvio
+FROM Orders AS o;
+
+#4. La suma de los 10 gastos de envío más caros de la tabla Orders
+SELECT SUM(TopEnvios.Freight) AS SumaTop10Envios
+FROM (
+    SELECT TOP 10 o.Freight
+    FROM Orders AS o
+    ORDER BY o.Freight DESC
+) AS TopEnvios;
+
+#5. Cantidad de empleados en Estados Unidos
+SELECT COUNT(*) AS CantidadEmpleadosUSA
+FROM Employees AS e
+WHERE e.Country = 'USA';
+
+#6. Cantidad de clientes que no tienen FAX
+SELECT COUNT(*) AS ClientesSinFax
+FROM Customers AS c
+WHERE c.Fax IS NULL OR c.Fax = '';
+
+#7. El promedio de los precios de los productos que cuestan mas de $20
+SELECT AVG(p.UnitPrice) AS PromedioPreciosMayores20
+FROM Products AS p
+WHERE p.UnitPrice > 20;
+
+#8. La suma de la Cantidad de unidades en stock de todos los productos
+SELECT SUM(p.UnitsInStock) AS TotalUnidadesEnStock
+FROM Products AS p;
