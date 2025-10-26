@@ -1,0 +1,72 @@
+-- 1. Territorios y región
+SELECT T.TerritoryDescription, R.RegionDescription
+FROM Territories AS T
+INNER JOIN Region AS R ON T.RegionID = R.RegionID;
+
+-- 2. ID de órdenes y país del cliente
+SELECT O.OrderID, C.Country
+FROM Orders AS O
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID;
+
+-- 3. Empleados y órdenes que emitieron
+SELECT E.EmployeeID, E.FirstName, E.LastName, O.OrderID
+FROM Employees AS E
+INNER JOIN Orders AS O ON E.EmployeeID = O.EmployeeID;
+
+-- 4. Productos, proveedor y categoría (orden descendente)
+SELECT P.ProductID, P.ProductName, S.SupplierID, S.CompanyName, 
+       C.CategoryID, C.CategoryName
+FROM Products AS P
+INNER JOIN Suppliers AS S ON P.SupplierID = S.SupplierID
+INNER JOIN Categories AS C ON P.CategoryID = C.CategoryID
+ORDER BY P.ProductName DESC;
+
+-- 5. Empleados y territorios
+SELECT E.EmployeeID, E.FirstName, E.LastName, T.TerritoryID, T.TerritoryDescription
+FROM Employees AS E
+INNER JOIN EmployeeTerritories AS ET ON E.EmployeeID = ET.EmployeeID
+INNER JOIN Territories AS T ON ET.TerritoryID = T.TerritoryID;
+
+-- 6. Orden 10248 con cliente y productos
+SELECT O.OrderID, C.CustomerID, C.CompanyName, P.ProductID, P.ProductName
+FROM Orders AS O
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P ON OD.ProductID = P.ProductID
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID
+WHERE O.OrderID = 10248;
+
+-- 7. Productos sin descuento
+SELECT DISTINCT P.ProductID, P.ProductName
+FROM Products AS P
+INNER JOIN [Order Details] AS OD ON P.ProductID = OD.ProductID
+WHERE OD.Discount = 0;
+
+-- 8. Productos y país donde se compran
+SELECT DISTINCT P.ProductID, P.ProductName, C.Country
+FROM Products AS P
+INNER JOIN [Order Details] AS OD ON P.ProductID = OD.ProductID
+INNER JOIN Orders AS O ON OD.OrderID = O.OrderID
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID;
+
+-- 9. Producto y proveedor
+SELECT P.ProductID, P.ProductName, S.CompanyName AS SupplierName
+FROM Products AS P
+INNER JOIN Suppliers AS S ON P.SupplierID = S.SupplierID;
+
+-- 10. Pedido, fecha y cliente
+SELECT O.OrderID, O.OrderDate, C.CompanyName AS CustomerName
+FROM Orders AS O
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID;
+
+-- 11. Pedido, fecha, cliente y empleado
+SELECT O.OrderID, O.OrderDate, C.CompanyName AS CustomerName, 
+       E.FirstName + ' ' + E.LastName AS EmployeeName
+FROM Orders AS O
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID
+INNER JOIN Employees AS E ON O.EmployeeID = E.EmployeeID;
+
+-- 12. Clientes con o sin pedidos
+SELECT C.CustomerID, C.CompanyName, O.OrderID
+FROM Customers AS C
+LEFT JOIN Orders AS O ON C.CustomerID = O.CustomerID
+ORDER BY C.CompanyName;
