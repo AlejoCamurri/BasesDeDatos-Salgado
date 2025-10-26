@@ -1,0 +1,154 @@
+-- ================================
+-- 4.10 - JOIN
+-- ================================
+
+-- 1. Territorios y región
+SELECT T.TerritoryDescription, R.RegionDescription
+FROM Territories AS T
+INNER JOIN Region AS R ON T.RegionID = R.RegionID;
+
+-- 2. ID de órdenes y país del cliente
+SELECT O.OrderID, C.Country
+FROM Orders AS O
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID;
+
+-- 3. Empleados y órdenes que emitieron
+SELECT E.EmployeeID, E.FirstName, E.LastName, O.OrderID
+FROM Employees AS E
+INNER JOIN Orders AS O ON E.EmployeeID = O.EmployeeID;
+
+-- 4. Productos, proveedor y categoría (orden descendente)
+SELECT P.ProductID, P.ProductName, S.SupplierID, S.CompanyName, 
+       C.CategoryID, C.CategoryName
+FROM Products AS P
+INNER JOIN Suppliers AS S ON P.SupplierID = S.SupplierID
+INNER JOIN Categories AS C ON P.CategoryID = C.CategoryID
+ORDER BY P.ProductName DESC;
+
+-- 5. Empleados y territorios
+SELECT E.EmployeeID, E.FirstName, E.LastName, T.TerritoryID, T.TerritoryDescription
+FROM Employees AS E
+INNER JOIN EmployeeTerritories AS ET ON E.EmployeeID = ET.EmployeeID
+INNER JOIN Territories AS T ON ET.TerritoryID = T.TerritoryID;
+
+-- 6. Orden 10248 con cliente y productos
+SELECT O.OrderID, C.CustomerID, C.CompanyName, P.ProductID, P.ProductName
+FROM Orders AS O
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P ON OD.ProductID = P.ProductID
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID
+WHERE O.OrderID = 10248;
+
+-- 7. Productos sin descuento
+SELECT DISTINCT P.ProductID, P.ProductName
+FROM Products AS P
+INNER JOIN [Order Details] AS OD ON P.ProductID = OD.ProductID
+WHERE OD.Discount = 0;
+
+-- 8. Productos y país donde se compran
+SELECT DISTINCT P.ProductID, P.ProductName, C.Country
+FROM Products AS P
+INNER JOIN [Order Details] AS OD ON P.ProductID = OD.ProductID
+INNER JOIN Orders AS O ON OD.OrderID = O.OrderID
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID;
+
+-- 9. Producto y proveedor
+SELECT P.ProductID, P.ProductName, S.CompanyName AS SupplierName
+FROM Products AS P
+INNER JOIN Suppliers AS S ON P.SupplierID = S.SupplierID;
+
+-- 10. Pedido, fecha y cliente
+SELECT O.OrderID, O.OrderDate, C.CompanyName AS CustomerName
+FROM Orders AS O
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID;
+
+-- 11. Pedido, fecha, cliente y empleado
+SELECT O.OrderID, O.OrderDate, C.CompanyName AS CustomerName, 
+       E.FirstName + ' ' + E.LastName AS EmployeeName
+FROM Orders AS O
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID
+INNER JOIN Employees AS E ON O.EmployeeID = E.EmployeeID;
+
+-- 12. Clientes con o sin pedidos
+SELECT C.CustomerID, C.CompanyName, O.OrderID
+FROM Customers AS C
+LEFT JOIN Orders AS O ON C.CustomerID = O.CustomerID
+ORDER BY C.CompanyName;
+
+
+
+-- ================================
+-- 4.11 - GROUP BY / HAVING
+-- ================================
+
+-- 1. Total de pedidos por cliente
+SELECT C.CustomerID, C.CompanyName, COUNT(O.OrderID) AS TotalPedidos
+FROM Customers AS C
+INNER JOIN Orders AS O ON C.CustomerID = O.CustomerID
+GROUP BY C.CustomerID, C.CompanyName;
+
+-- 2. Pedidos con el producto "Cerveza Northwind Traders"
+SELECT O.OrderID, O.OrderDate, OD.Quantity
+FROM Orders AS O
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P ON OD.ProductID = P.ProductID
+WHERE P.ProductName = 'Cerveza Northwind Traders';
+
+-- 3. Categoría y cantidad de productos
+SELECT C.CategoryID, C.CategoryName, COUNT(P.ProductID) AS CantidadProductos
+FROM Categories AS C
+INNER JOIN Products AS P ON C.CategoryID = P.CategoryID
+GROUP BY C.CategoryID, C.CategoryName;
+
+-- 4. Subtotal por factura
+SELECT OD.OrderID, SUM(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) AS Subtotal
+FROM [Order Details] AS OD
+GROUP BY OD.OrderID;
+
+-- 5. Facturas con cliente, fecha y subtotal
+SELECT O.OrderID, C.CustomerID, C.CompanyName, O.OrderDate,
+       SUM(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) AS Subtotal
+FROM Orders AS O
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID
+GROUP BY O.OrderID, C.CustomerID, C.CompanyName, O.OrderDate;
+
+-- 6. Total facturado por empleado (solo > $100)
+SELECT E.EmployeeID, E.FirstName, E.LastName,
+       SUM(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) AS TotalFacturado
+FROM Employees AS E
+INNER JOIN Orders AS O ON E.EmployeeID = O.EmployeeID
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+GROUP BY E.EmployeeID, E.FirstName, E.LastName
+HAVING SUM(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) > 100;
+
+-- 7. Facturas mayores a $50
+SELECT O.OrderID, C.CustomerID, C.CompanyName, O.OrderDate,
+       SUM(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) AS Subtotal
+FROM Orders AS O
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Customers AS C ON O.CustomerID = C.CustomerID
+GROUP BY O.OrderID, C.CustomerID, C.CompanyName, O.OrderDate
+HAVING SUM(OD.UnitPrice * OD.Quantity * (1 - OD.Discount)) > 50;
+
+-- 8. Cantidad de territorios por región
+SELECT R.RegionID, R.RegionDescription, COUNT(T.TerritoryID) AS CantidadTerritorios
+FROM Region AS R
+INNER JOIN Territories AS T ON R.RegionID = T.RegionID
+GROUP BY R.RegionID, R.RegionDescription;
+
+-- 9. Productos de cada categoría con más de 30 unidades en stock
+SELECT C.CategoryID, C.CategoryName, COUNT(P.ProductID) AS ProductosStockAlto
+FROM Categories AS C
+INNER JOIN Products AS P ON C.CategoryID = P.CategoryID
+WHERE P.UnitsInStock > 30
+GROUP BY C.CategoryID, C.CategoryName;
+
+-- 10. Cantidad de Tofu vendido por día
+SELECT O.OrderDate, SUM(OD.Quantity) AS CantidadVendida
+FROM Orders AS O
+INNER JOIN [Order Details] AS OD ON O.OrderID = OD.OrderID
+INNER JOIN Products AS P ON OD.ProductID = P.ProductID
+WHERE P.ProductName = 'Tofu'
+GROUP BY O.OrderDate
+ORDER BY O.OrderDate;
